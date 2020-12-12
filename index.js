@@ -10,4 +10,5 @@ exports.cartridge = require('./lib/cartridge').api;
 exports.code = require('./lib/code').api;
 exports.instance = require('./lib/instance').api;
 exports.job = require('./lib/job').api;
+exports.sandbox = require('./lib/sandbox').api;
 exports.webdav = require('./lib/webdav').api;

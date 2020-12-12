@@ -570,6 +570,7 @@ The API is structured into sub modules. You may require sub modules directly, e.
   const sfcc_code = require('sfcc-ci').code;
   const sfcc_instance = require('sfcc-ci').instance;
   const sfcc_job = require('sfcc-ci').job;
+  const sfcc_sandbox = require('sfcc-ci').sandbox;
   const sfcc_webdav = require('sfcc-ci').webdav;
 ```
 
@@ -584,7 +585,17 @@ The following APIs are available (assuming `sfcc` refers to `require('sfcc-ci')`
   sfcc.instance.upload(instance, file, token, options, callback);
   sfcc.instance.import(instance, file_name, token, callback);
   sfcc.job.run(instance, job_id, job_params, token, callback);
-  sfcc.job.status(instance, job_id, job_execution_id, token, callback);
+  sfcc.sandbox.realm.list(realm, topic, sortBy);
+  sfcc.sandbox.realm.update(realm, maxSandboxTTL, defaultSandboxTTL);
+  sfcc.sandbox.list(showDeleted, sortBy);
+  sfcc.sandbox.create(realm, alias, ttl, ocapiSettings, webdavPermissions, sync, setAsDefault);
+  sfcc.sandbox.get(spec, hostOnly, topic);
+  sfcc.sandbox.delete(spec);
+  sfcc.sandbox.start(spec);
+  sfcc.sandbox.stop(spec);
+  sfcc.sandbox.restart(spec);
+  sfcc.sandbox.reset(spec);
+  sfcc.sandbox.update(spec, ttl);
   sfcc.webdav.upload(instance, path, file, token, options, callback);
 ```
 
@@ -597,7 +608,7 @@ APIs available in `require('sfcc-ci').auth`:
 Authenticates a clients and attempts to obtain a new Oauth2 token. Note, that tokens should be reused for subsequent operations. In case of a invalid token you may call this method again to obtain a new token.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 client_id     | (String)    | The client ID
 client_secret | (String)    | The client secret
 callback      | (Function)  | Callback function executed as a result. The error and the token will be passed as parameters to the callback function.
@@ -632,7 +643,7 @@ APIs available in `require('sfcc-ci').cartridge`:
 Allows to add a cartridge to the cartridge path for a given site at a specific position.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | The instance to add the cartridge.
 cartridgename | (String)    | The given cartride name.
 position      | (String)    | Either first, last, before or after.
@@ -674,7 +685,7 @@ APIs available in `require('sfcc-ci').code`:
 Deploys a custom code archive onto a Commerce Cloud instance
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | The instance to activate the code on
 archive       | (String)    | The ZIP archive filename to deploy
 token         | (String)    | The Oauth token to use use for authentication
@@ -690,7 +701,7 @@ callback      | (Function)  | Callback function executed as a result. The error 
 Get all custom code versions deployed on a Commerce Cloud instance.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | The instance to activate the code on
 token         | (String)    | The Oauth token to use for authentication
 callback      | (Function)  | Callback function executed as a result. The error and the code versions will be passed as parameters to the callback function.
@@ -704,7 +715,7 @@ callback      | (Function)  | Callback function executed as a result. The error 
 Activate the custom code version on a Commerce Cloud instance. If the code version is already active, no error is available.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | The instance to activate the code on
 code_version  | (String)    | The code version to activate
 token         | (String)    | The Oauth token to use use for authentication
@@ -723,7 +734,7 @@ APIs available in `require('sfcc').instance`:
 Uploads an instance import file onto a Commerce Cloud instance.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | The instance to upload the import file to
 file          | (String)    | The file to upload
 token         | (String)    | The Oauth token to use use for authentication
@@ -739,7 +750,7 @@ callback      | (Function)  | Callback function executed as a result. The error 
 Perform an instance import (aka site import) on a Commerce Cloud instance. You may use the API job.status to get the execution status of the import.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | Instance to start the import on
 file_name     | (String)    | The import file to run the import with
 token         | (String)    | The Oauth token to use use for authentication
@@ -758,7 +769,7 @@ APIs available in `require('sfcc').job`:
 Starts a job execution on a Commerce Cloud instance. The job is triggered and the result of the attempt to start the job is returned. You may use the API job.status to get the current job execution status.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | Instance to start the job on
 job_id        | (String)    | The job to start
 token         | (String)    | The Oauth token to use use for authentication
@@ -774,7 +785,7 @@ callback      | (Function)  | Callback function executed as a result. The error 
 Get the status of a job execution on a Commerce Cloud instance.
 
 Param            | Type        | Description
----------------- | ------------| --------------------------------
+---------------- | ----------- | --------------------------------
 instance         | (String)    | Instance the job was executed on.
 job_id           | (String)    | The job to get the execution status for
 job_execution_id | (String)    | The job execution id to get the status for
@@ -782,6 +793,156 @@ token            | (String)    | The Oauth token to use use for authentication
 callback         | (Function)  | Callback function executed as a result. The error and the job execution details will be passed as parameters to the callback function.
 
 **Returns:** (void) Function has no return value
+
+***
+
+### Sandboxes ###
+
+APIs available in `require('sfcc').sandbox`:
+
+`realm.list(realm, topic, sortBy)`
+
+Returns the list of realms eligible to manage sandboxes for
+
+Param         | Type        | Description
+------------- | ----------- | --------------------------------
+realm         | (String)    | the realm id or null if all realms should be returned (optional)
+topic         | (String)    | topic to retrieve details for (optional)
+sortBy        | (String)    | optional field to sort the list by
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`realm.update(realm, maxSandboxTTL, defaultSandboxTTL)`
+
+Update realm settings
+
+Param             | Type        | Description
+----------------- | ----------- | --------------------------------
+realm             | (String)    | realm to update
+maxSandboxTTL     | (Number)    | max number of hours a sandbox can live in the realm
+defaultSandboxTTL | (Number)    | number of hours a sandbox lives in the realm by default
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`list(showDeleted, sortBy)`
+
+List all available sandboxes
+
+Param         | Type        | Description
+------------- | ----------- | --------------------------------
+showDeleted   | (Boolean)   | optional flag whether or not to show deleted sandboxes, false by default
+sortBy        | (String)    | optional field to sort the list of sandboxes by
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`create(realm, alias, ttl, ocapiSettings, webdavPermissions, sync, setAsDefault)`
+
+Create a new sandbox
+
+Param             | Type        | Description
+----------------- | ----------- | --------------------------------
+realm             | (String)    | the realm to create the sandbox in
+alias             | (String)    | the alias to use for the created sandbox
+ttl               | (Number)    | number of hours, the sandbox will live (if absent the realm default ttl is used)
+ocapiSettings     | (String)    | additional ocapi settings
+webdavPermissions | (String)    | additional webdav permissions
+sync              | (Boolean)   | whether to operate in synchronous mode, false by default
+setAsDefault      | (Boolean)   | optional flag to set as new default instance, false by default
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`get(spec, hostOnly, topic)`
+
+Get detailed information about a sandbox
+
+Param    | Type        | Description
+-------- | ----------- | --------------------------------
+spec     | (Object)    | specification of the sandbox to get details for
+hostOnly | (Boolean)   | optional flag to return the well-defined host name of the sandbox, false by default
+topic    | (String)    | topic to retrieve details for
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`delete(spec)`
+
+Delete a sandbox
+
+Param    | Type        | Description
+-------- | ----------- | --------------------------------
+spec     | (Object)    | specification of the sandbox to issue for deletion
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`start(spec)`
+
+Start a sandbox
+
+Param | Type        | Description
+----- | ----------- | --------------------------------
+spec  | (String)    | specification of the sandbox to start
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`stop(spec)`
+
+Stop a sandbox
+
+Param | Type        | Description
+----- | ----------- | --------------------------------
+spec  | (String)    | specification of the sandbox to stop
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`restart(spec)`
+
+Restart a sandbox
+
+Param | Type        | Description
+----- | ----------- | --------------------------------
+spec  | (String)    | specification of the sandbox to restart
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`reset(spec)`
+
+Reset a sandbox
+
+Param | Type        | Description
+----- | ----------- | --------------------------------
+spec  | (String)    | specification of the sandbox to reset
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
+
+***
+
+`update(spec)`
+
+Update a sandbox
+
+Param | Type        | Description
+----- | ----------- | --------------------------------
+spec  | (String)    | specification of the sandbox to update
+ttl   | (Number)    | number of hours, the sandbox TTL will be prolonged
+
+**Returns:** (Promise) Returns a rejected promise in case of error with the error details as parameter, or a resolved promise in case of success, with the result as parameter
 
 ***
 
@@ -794,7 +955,7 @@ APIs available in `require('sfcc').webdav`:
 Uploads an arbitrary file onto a Commerce Cloud instance.
 
 Param         | Type        | Description
-------------- | ------------| --------------------------------
+------------- | ----------- | --------------------------------
 instance      | (String)    | The instance to upload the import file to
 path          | (String)    | The path relative to .../webdav/Sites where the file to upload to
 file          | (String)    | The file to upload
